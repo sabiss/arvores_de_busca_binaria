@@ -141,6 +141,52 @@ private:
         balancear(atual);
     }
 
+    void removerRecursivo(NoAVL<T>*& atual, T valor) {
+        if (atual == nullptr) return; //Elemento não encontrado
+
+        if (valor < atual->getValor()) {
+            removerRecursivo(atual->esquerda, valor);
+        } else if (valor > atual->getValor()) {
+            removerRecursivo(atual->direita, valor);
+        } else {
+            //Nó encontrado
+            //Caso 2: Nó com 0 ou 1 filho
+            if (atual->esquerda == nullptr) {
+                NoAVL<T>* temp = atual;
+                atual = atual->direita;
+                delete temp;
+            } else if (atual->direita == nullptr) {
+                NoAVL<T>* temp = atual;
+                atual = atual->esquerda;
+                delete temp;
+            } 
+            /Caso 3: Nó com 2 filhos
+            else { //busca a menor chave das maiores
+                NoAVL<T>* menorChaveDasMaioresQueX = encontrarMenor(atual->direita);
+
+                atual->setValor(menorChaveDasMaioresQueX->getValor());
+
+                removerRecursivo(atual->direita, menorChaveDasMaioresQueX->getValor());
+            }
+        }
+
+        //no removido era uma folha
+        if (atual == nullptr) return;
+
+        balancear(atual);
+    }
+
+    void imprimirRecursivo(NoAVL<T>* atual, string prefixo, bool isEsquerda) const {
+        if (atual != nullptr) {
+            cout << prefixo << (isEsquerda ? "├── " : "└── ") 
+                 << atual->getValor() 
+                 << " (h=" << obterAltura(atual) 
+                 << ", fb=" << obterFatorBalanceamento(atual) << ")" << endl;
+            imprimirRecursivo(atual->esquerda, prefixo + (isEsquerda ? "│   " : "    "), true);
+            imprimirRecursivo(atual->direita, prefixo + (isEsquerda ? "│   " : "    "), false);
+        }
+    }
+
 public:
     ArvoreAVL() : raiz(nullptr) {}
 
@@ -157,9 +203,22 @@ public:
         percorrerEmOrdemRecursivo(raiz);
         cout << endl;
     }
-    
+
     void inserir(T valor) {
         inserirRecursivo(raiz, valor);
+    }
+
+    void remover(T valor) {
+        removerRecursivo(raiz, valor);
+    }
+
+    void imprimir() const {
+        if (raiz == nullptr) {
+            cout << "Árvore AVL vazia." << endl;
+            return;
+        }
+        cout << "Estrutura da Árvore AVL:" << endl;
+        imprimirRecursivo(raiz, "", true);
     }
 };
 
