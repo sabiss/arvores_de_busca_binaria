@@ -2,6 +2,7 @@
 #define ARVORE_RUBRO_NEGRA_CPP
 
 #include <iostream>
+#include <string>
 #include "./nos/noRN.cpp"
 
 using namespace std;
@@ -154,6 +155,97 @@ private:
         raiz->cor = PRETO;
     }
 
+    void transplantar(NoRN<T>* u, NoRN<T>* v) {
+        if (u->pai == NIL) {
+            raiz = v;
+        } else if (u == u->pai->esquerda) {
+            u->pai->esquerda = v;
+        } else {
+            u->pai->direita = v;
+        }
+        v->pai = u->pai; // Mesmo que v seja NIL, atualizamos o pai temporariamente para o Fixup
+    }
+
+    void balancearRemocao(NoRN<T>* x) {
+        while (x != raiz && x->cor == PRETO) {
+            //x está à ESQUERDA do seu pai
+            if (x == x->pai->esquerda) {
+                NoRN<T>* irmao = x->pai->direita;
+
+                //O irmão de x é VERMELHO
+                if (irmao->cor == VERMELHO) {
+                    irmao->cor = PRETO;
+                    x->pai->cor = VERMELHO;
+                    rotacaoEsquerda(x->pai);
+                    irmao = x->pai->direita;
+                }
+
+                //Caso 2: O irmão é PRETO e ambos os filhos do irmão são PRETOS
+                if (irmao->esquerda->cor == PRETO && irmao->direita->cor == PRETO) {
+                    irmao->cor = VERMELHO;
+                    x = x->pai; // Sobe a falta de cor preta para o pai
+                } else {
+                    //Caso 3: O irmão é PRETO, sobrinho esquerdo é VERMELHO e direito é PRETO
+                    if (irmao->direita->cor == PRETO) {
+                        irmao->esquerda->cor = PRETO;
+                        irmao->cor = VERMELHO;
+                        rotacaoDireita(irmao);
+                        irmao = x->pai->direita;
+                    }
+                    //Caso 4: O irmão é PRETO e o sobrinho direito é VERMELHO
+                    irmao->cor = x->pai->cor;
+                    x->pai->cor = PRETO;
+                    irmao->direita->cor = PRETO;
+                    rotacaoEsquerda(x->pai);
+                    x = raiz;
+                }
+            } 
+            //x está à DIREITA do seu pai
+            else {
+                NoRN<T>* irmao = x->pai->esquerda;
+
+                //Caso 1: O irmão de x é VERMELHO
+                if (irmao->cor == VERMELHO) {
+                    irmao->cor = PRETO;
+                    x->pai->cor = VERMELHO;
+                    rotacaoDireita(x->pai);
+                    irmao = x->pai->esquerda;
+                }
+
+                //Caso 2: O irmão é PRETO e ambos os filhos do irmão são PRETOS
+                if (irmao->direita->cor == PRETO && irmao->esquerda->cor == PRETO) {
+                    irmao->cor = VERMELHO;
+                    x = x->pai;
+                } else {
+                    //Caso 3: O irmão é PRETO, sobrinho direito é VERMELHO e esquerdo é PRETO
+                    if (irmao->esquerda->cor == PRETO) {
+                        irmao->direita->cor = PRETO;
+                        irmao->cor = VERMELHO;
+                        rotacaoEsquerda(irmao);
+                        irmao = x->pai->esquerda;
+                    }
+                    //Caso 4: O irmão é PRETO e o sobrinho esquerdo (distante) é VERMELHO
+                    irmao->cor = x->pai->cor;
+                    x->pai->cor = PRETO;
+                    irmao->esquerda->cor = PRETO;
+                    rotacaoDireita(x->pai);
+                    x = raiz;
+                }
+            }
+        }
+
+        x->cor = PRETO;
+    }
+
+    void imprimirRecursivo(NoRN<T>* atual, string prefixo, bool isEsquerda) const {
+        if (atual != NIL) {
+            string etiquetaCor = (atual->cor == VERMELHO) ? "[V]" : "[P]";
+            cout << prefixo << (isEsquerda ? "├── " : "└── ") << atual->getValor() << " " << etiquetaCor << endl;
+            imprimirRecursivo(atual->esquerda, prefixo + (isEsquerda ? "│   " : "    "), true);
+            imprimirRecursivo(atual->direita, prefixo + (isEsquerda ? "│   " : "    "), false);
+        }
+    }
+
 public:
     ArvoreRubroNegra() {
         NIL = new NoRN<T>(T());
@@ -212,6 +304,61 @@ public:
 
         balancearInsercao(novo);
     }
+
+    void remover(T valor) {
+        NoRN<T>* z = buscarRecursivo(raiz, valor);
+        if (z == NIL) return;
+
+        NoRN<T>* y = z;
+        NoRN<T>* x;
+        Cor corOriginalDeY = y->cor;
+
+        //z não tem filho à esquerda
+        if (z->esquerda == NIL) {
+            x = z->direita;
+            transplantar(z, z->direita);
+        } 
+        //z não tem filho à direita
+        else if (z->direita == NIL) {
+            x = z->esquerda;
+            transplantar(z, z->esquerda);
+        } 
+        //z tem 2 filhos
+        else {
+            y = encontrarMenor(z->direita);
+            corOriginalDeY = y->cor;
+            x = y->direita;
+
+            if (y->pai == z) {
+                x->pai = y;
+            } else {
+                transplantar(y, y->direita);
+                y->direita = z->direita;
+                y->direita->pai = y;
+            }
+
+            transplantar(z, y);
+            y->esquerda = z->esquerda;
+            y->esquerda->pai = y;
+            y->cor = z->cor;
+        }
+
+        delete z;
+
+        if (corOriginalDeY == PRETO) {
+            balancearRemocao(x);
+        }
+    }
+
+    void imprimir() const {
+        if (raiz == NIL) {
+            cout << "Árvore Rubro-Negra vazia." << endl;
+            return;
+        }
+        cout << "Estrutura da Árvore Rubro-Negra ([V]=Vermelho, [P]=Preto):" << endl;
+        imprimirRecursivo(raiz, "", true);
+    }
+
 };
 
 #endif
