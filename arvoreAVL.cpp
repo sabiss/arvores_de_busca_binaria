@@ -2,6 +2,7 @@
 #define ARVORE_AVL_CPP
 
 #include <iostream>
+#include <algorithm>
 #include "./nos/noAVL.cpp"
 
 using namespace std;
@@ -160,7 +161,7 @@ private:
                 atual = atual->esquerda;
                 delete temp;
             } 
-            /Caso 3: Nó com 2 filhos
+            //Caso 3: Nó com 2 filhos
             else { //busca a menor chave das maiores
                 NoAVL<T>* menorChaveDasMaioresQueX = encontrarMenor(atual->direita);
 
