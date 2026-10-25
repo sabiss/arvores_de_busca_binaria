@@ -44,6 +44,103 @@ private:
         return atual;
     }
 
+    int obterAltura(NoAVL<T>* no) const {
+        if (no == nullptr) {
+            return 0;
+        }
+        return no->getAltura();
+    }
+
+    //FB = Altura(Esquerda) - Altura(Direita)
+    int obterFatorBalanceamento(NoAVL<T>* no) const {
+        if (no == nullptr) {
+            return 0;
+        }
+        return obterAltura(no->esquerda) - obterAltura(no->direita);
+    }
+
+    //Recalcula a altura do nó com base na maior altura entre seus dois filhos
+    void atualizarAltura(NoAVL<T>* no) {
+        if (no != nullptr) {
+            int altEsq = obterAltura(no->esquerda);
+            int altDir = obterAltura(no->direita);
+            no->setAltura(1 + max(altEsq, altDir));
+        }
+    }
+
+    //Rotação Simples à Direita - Caso LL
+    void rotacaoDireita(NoAVL<T>*& y) {
+        NoAVL<T>* x = y->esquerda;
+        NoAVL<T>* T2 = x->direita;
+
+        x->direita = y;
+        y->esquerda = T2;
+
+        atualizarAltura(y);
+        atualizarAltura(x);
+
+        y = x;
+    }
+
+    //Rotação Simples à Esquerda - Caso RR
+    void rotacaoEsquerda(NoAVL<T>*& x) {
+        NoAVL<T>* y = x->direita;
+        NoAVL<T>* T2 = y->esquerda;
+
+        y->esquerda = x;
+        x->direita = T2;
+
+        atualizarAltura(x);
+        atualizarAltura(y);
+
+        x = y;
+    }
+
+    void balancear(NoAVL<T>*& atual) {
+        if (atual == nullptr) return;
+
+        atualizarAltura(atual);
+
+        int fb = obterFatorBalanceamento(atual);
+
+        //Desbalanceado para a ESQUERDA
+        if (fb > 1) {
+            //Caso LR
+            if (obterFatorBalanceamento(atual->esquerda) < 0) {
+                rotacaoEsquerda(atual->esquerda); // Alinha o joelho para virar Caso LL
+            }
+            //Caso LL
+            rotacaoDireita(atual);
+        }
+        //Desbalanceado para a DIREITA
+        else if (fb < -1) {
+            //Caso RL
+            if (obterFatorBalanceamento(atual->direita) > 0) {
+                rotacaoDireita(atual->direita); // Alinha o joelho para virar Caso RR
+            }
+            //Caso RR
+            rotacaoEsquerda(atual);
+        }
+    }
+
+    void inserirRecursivo(NoAVL<T>*& atual, T valor) {
+        if (atual == nullptr) {
+            atual = new NoAVL<T>(valor);
+            return;
+        }
+
+        if (valor < atual->getValor()) {
+            inserirRecursivo(atual->esquerda, valor);
+        } else if (valor > atual->getValor()) {
+            inserirRecursivo(atual->direita, valor);
+        } else {
+            //Valor já existe
+            return;
+        }
+
+        balancear(atual);
+    }
+
 public:
     ArvoreAVL() : raiz(nullptr) {}
 
@@ -59,6 +156,10 @@ public:
         cout << "Elementos em ordem: ";
         percorrerEmOrdemRecursivo(raiz);
         cout << endl;
+    }
+    
+    void inserir(T valor) {
+        inserirRecursivo(raiz, valor);
     }
 };
 
