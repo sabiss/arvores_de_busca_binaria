@@ -237,12 +237,23 @@ private:
         x->cor = PRETO;
     }
 
-    void imprimirRecursivo(NoRN<T>* atual, string prefixo, bool isEsquerda) const {
+    void imprimirRecursivo(NoRN<T>* atual, string prefixo, bool isEsquerda, bool isRaiz = false) const {
         if (atual != NIL) {
+            cout << prefixo;
+            
+            if (isRaiz) {
+                cout << "└── [Raiz] ";
+            } else {
+                cout << (isEsquerda ? "├── [Esq]  " : "└── [Dir]  ");
+            }
+            
             string etiquetaCor = (atual->cor == VERMELHO) ? "[V]" : "[P]";
-            cout << prefixo << (isEsquerda ? "├── " : "└── ") << atual->getValor() << " " << etiquetaCor << endl;
-            imprimirRecursivo(atual->esquerda, prefixo + (isEsquerda ? "│   " : "    "), true);
-            imprimirRecursivo(atual->direita, prefixo + (isEsquerda ? "│   " : "    "), false);
+            cout << atual->getValor() << " " << etiquetaCor << endl;
+
+            string novoPrefixo = prefixo + (isEsquerda && !isRaiz ? "│   " : "    ");
+            
+            imprimirRecursivo(atual->esquerda, novoPrefixo, true, false);
+            imprimirRecursivo(atual->direita, novoPrefixo, false, false);
         }
     }
 
@@ -356,7 +367,7 @@ public:
             return;
         }
         cout << "Estrutura da Árvore Rubro-Negra ([V]=Vermelho, [P]=Preto):" << endl;
-        imprimirRecursivo(raiz, "", true);
+        imprimirRecursivo(raiz, "", true, true);
     }
 
 };

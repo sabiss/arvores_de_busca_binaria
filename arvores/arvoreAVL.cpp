@@ -177,15 +177,25 @@ private:
         balancear(atual);
     }
 
-    void imprimirRecursivo(NoAVL<T>* atual, string prefixo, bool isEsquerda) const {
+    void imprimirRecursivo(NoAVL<T>* atual, string prefixo, bool isEsquerda, bool isRaiz = false) const {
         if (atual != nullptr) {
-            cout << prefixo << (isEsquerda ? "├── " : "└── ") 
-                 << atual->getValor() 
-                 << " (h=" << obterAltura(atual) 
-                 << ", fb=" << obterFatorBalanceamento(atual) << ")" << endl;
-            imprimirRecursivo(atual->esquerda, prefixo + (isEsquerda ? "│   " : "    "), true);
-            imprimirRecursivo(atual->direita, prefixo + (isEsquerda ? "│   " : "    "), false);
+        cout << prefixo;
+        
+        if (isRaiz) {
+            cout << "└── [Raiz] ";
+        } else {
+            cout << (isEsquerda ? "├── [Esq] " : "└── [Dir] ");
         }
+        
+        cout << atual->getValor() 
+             << " (h=" << obterAltura(atual) 
+             << ", fb=" << obterFatorBalanceamento(atual) << ")" << endl;
+
+        string novoPrefixo = prefixo + (isEsquerda && !isRaiz ? "│   " : "    ");
+        
+        imprimirRecursivo(atual->esquerda, novoPrefixo, true, false);
+        imprimirRecursivo(atual->direita, novoPrefixo, false, false);
+    }
     }
 
 public:
@@ -219,7 +229,7 @@ public:
             return;
         }
         cout << "Estrutura da Árvore AVL:" << endl;
-        imprimirRecursivo(raiz, "", true);
+        imprimirRecursivo(raiz, "", true, true);
     }
 };
 
