@@ -27,11 +27,32 @@ private:
         }
     }
 
+    NoAVL<T>* buscarRecursivo(NoAVL<T>* atual, T valor) const {
+        if (atual == nullptr || atual->getValor() == valor) {
+            return atual;
+        }
+        if (valor < atual->getValor()) {
+            return buscarRecursivo(atual->esquerda, valor);
+        }
+        return buscarRecursivo(atual->direita, valor);
+    }
+
+    NoAVL<T>* encontrarMenor(NoAVL<T>* atual) const {
+        while (atual != nullptr && atual->esquerda != nullptr) {
+            atual = atual->esquerda;
+        }
+        return atual;
+    }
+
 public:
     ArvoreAVL() : raiz(nullptr) {}
 
     ~ArvoreAVL() {
         destruirArvore(raiz);
+    }
+
+    NoAVL<T>* buscar(T valor) const {
+        return buscarRecursivo(raiz, valor);
     }
 
     void percorrerEmOrdem() const {
