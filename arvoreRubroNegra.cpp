@@ -28,6 +28,23 @@ private:
         }
     }
 
+    NoRN<T>* buscarRecursivo(NoRN<T>* atual, T valor) const {
+        if (atual == NIL || atual->getValor() == valor) {
+            return atual;
+        }
+        if (valor < atual->getValor()) {
+            return buscarRecursivo(atual->esquerda, valor);
+        }
+        return buscarRecursivo(atual->direita, valor);
+    }
+
+    NoRN<T>* encontrarMenor(NoRN<T>* atual) const {
+        while (atual != NIL && atual->esquerda != NIL) {
+            atual = atual->esquerda;
+        }
+        return atual;
+    }
+
 public:
     ArvoreRubroNegra() {
         NIL = new NoRN<T>(T());
@@ -47,6 +64,11 @@ public:
         cout << "Elementos em ordem: ";
         percorrerEmOrdemRecursivo(raiz);
         cout << endl;
+    }
+
+    NoRN<T>* buscar(T valor) const {
+        NoRN<T>* resultado = buscarRecursivo(raiz, valor);
+        return (resultado == NIL) ? nullptr : resultado;
     }
 };
 
