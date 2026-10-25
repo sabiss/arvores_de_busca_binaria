@@ -11,12 +11,14 @@ public:
     T valor;
     NoRN<T>* esquerda;
     NoRN<T>* direita;
+    NoRN<T>* pai;
     Cor cor;
 
     NoRN(T id) {
         valor = id;
         esquerda = nullptr;
         direita = nullptr;
+        pai = nullptr;
         cor = VERMELHO;
     }
 
@@ -30,6 +32,9 @@ public:
 
     NoRN<T>* getDireita() const { return direita; }
     void setDireita(NoRN<T>* dir) { direita = dir; }
+
+    NoRN<T>* getPai() const { return pai; }
+    void setPai(NoRN<T>* p) { pai = p; }
 
     Cor getCor() const { return cor; }
     void setCor(Cor c) { cor = c; }
