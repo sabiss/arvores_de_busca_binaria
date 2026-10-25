@@ -94,6 +94,66 @@ private:
         y->pai = x;
     }
 
+    void balancearInsercao(NoRN<T>* z) {
+        while (z->pai->cor == VERMELHO) {
+            NoRN<T>* pai = z->pai;
+            NoRN<T>* avo = pai->pai;
+
+            //O pai de z é o filho ESQUERDO do avô
+            if (pai == avo->esquerda) {
+                NoRN<T>* tio = avo->direita;
+
+                //O Tio é VERMELHO -> Apenas recolorir Pai, Tio e Avô
+                if (tio->cor == VERMELHO) {
+                    pai->cor = PRETO;
+                    tio->cor = PRETO;
+                    avo->cor = VERMELHO;
+                    z = avo; //Sobe o problema para o avô e continua o while
+                } 
+                else {
+                    //O Tio é PRETO e z é filho DIREIT
+                    if (z == pai->direita) {
+                        z = pai;
+                        rotacaoEsquerda(z);
+                        pai = z->pai;
+                        avo = pai->pai;
+                    }
+                    //O Tio é PRETO e z é filho ESQUERDO
+                    pai->cor = PRETO;
+                    avo->cor = VERMELHO;
+                    rotacaoDireita(avo);
+                }
+            } 
+            //O pai de z é o filho DIREITO do avô
+            else {
+                NoRN<T>* tio = avo->esquerda;
+
+                //O Tio é VERMELHO -> Recoloração
+                if (tio->cor == VERMELHO) {
+                    pai->cor = PRETO;
+                    tio->cor = PRETO;
+                    avo->cor = VERMELHO;
+                    z = avo; // Sobe para o avô
+                } 
+                else {
+                    //O Tio é PRETO e z é filho ESQUERDO
+                    if (z == pai->esquerda) {
+                        z = pai;
+                        rotacaoDireita(z);
+                        pai = z->pai;
+                        avo = pai->pai;
+                    }
+                    //O Tio é PRETO e z é filho DIREITO
+                    pai->cor = PRETO;
+                    avo->cor = VERMELHO;
+                    rotacaoEsquerda(avo);
+                }
+            }
+        }
+        
+        raiz->cor = PRETO;
+    }
+
 public:
     ArvoreRubroNegra() {
         NIL = new NoRN<T>(T());
@@ -118,6 +178,39 @@ public:
     NoRN<T>* buscar(T valor) const {
         NoRN<T>* resultado = buscarRecursivo(raiz, valor);
         return (resultado == NIL) ? nullptr : resultado;
+    }
+
+    void inserir(T valor) {
+        NoRN<T>* pai = NIL;
+        NoRN<T>* atual = raiz;
+
+        while (atual != NIL) {
+            pai = atual;
+            if (valor < atual->getValor()) {
+                atual = atual->esquerda;
+            } else if (valor > atual->getValor()) {
+                atual = atual->direita;
+            } else {
+                //Valor duplicado
+                return;
+            }
+        }
+
+        NoRN<T>* novo = new NoRN<T>(valor);
+        novo->pai = pai;
+        novo->esquerda = NIL;
+        novo->direita = NIL;
+
+        //Conecta o novo nó ao seu pai (ou define como raiz se a árvore estava vazia)
+        if (pai == NIL) {
+            raiz = novo;
+        } else if (valor < pai->getValor()) {
+            pai->esquerda = novo;
+        } else {
+            pai->direita = novo;
+        }
+
+        balancearInsercao(novo);
     }
 };
 
