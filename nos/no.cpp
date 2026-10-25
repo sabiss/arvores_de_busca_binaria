@@ -1,3 +1,6 @@
+#ifndef NO_CPP
+#define NO_CPP
+
 using namespace std;
 
 template <typename T>
@@ -23,3 +26,5 @@ public:
     void setEsquerda(No* esq) { esquerda = esq; }
     void setDireita(No* dir) { direita = dir; }
 };
+
+#endif
