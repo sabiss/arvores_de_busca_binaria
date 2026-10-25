@@ -45,6 +45,55 @@ private:
         return atual;
     }
 
+    void rotacaoEsquerda(NoRN<T>* x) {
+        NoRN<T>* y = x->direita; //y é o filho direito de x (que vai subir)
+        
+        //A subárvore esquerda de y vira a nova subárvore direita de x
+        x->direita = y->esquerda;
+        if (y->esquerda != NIL) {
+            y->esquerda->pai = x;
+        }
+
+        //Conecta o pai de x ao novo topo da subárvore (y)
+        y->pai = x->pai;
+        if (x->pai == NIL) {
+            raiz = y; //x era a raiz da árvore inteira
+        } else if (x == x->pai->esquerda) {
+            x->pai->esquerda = y;
+        } else {
+            x->pai->direita = y;
+        }
+
+        //Coloca x como filho esquerdo de y
+        y->esquerda = x;
+        x->pai = y;
+    }
+
+    // Rotação à Direita em torno do nó y
+    void rotacaoDireita(NoRN<T>* y) {
+        NoRN<T>* x = y->esquerda; //=
+
+        //A subárvore direita de x vira a nova subárvore esquerda de y
+        y->esquerda = x->direita;
+        if (x->direita != NIL) {
+            x->direita->pai = y;
+        }
+
+        //Conecta o pai de y ao novo topo da subárvore (x)
+        x->pai = y->pai;
+        if (y->pai == NIL) {
+            raiz = x; //y era a raiz da árvore inteira
+        } else if (y == y->pai->direita) {
+            y->pai->direita = x;
+        } else {
+            y->pai->esquerda = x;
+        }
+
+        //Coloca y como filho direito de x
+        x->direita = y;
+        y->pai = x;
+    }
+
 public:
     ArvoreRubroNegra() {
         NIL = new NoRN<T>(T());
