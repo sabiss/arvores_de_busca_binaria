@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <string>
-#include "./nos/noRN.cpp"
+#include "./../nos/noRN.cpp"
 
 using namespace std;
 

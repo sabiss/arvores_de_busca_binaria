@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <algorithm>
-#include "./nos/noAVL.cpp"
+#include "./../nos/noAVL.cpp"
 
 using namespace std;
 
