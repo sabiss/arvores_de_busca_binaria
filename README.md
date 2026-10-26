@@ -7,7 +7,6 @@ Trabalho da Unidade II — **IMD0039 · Estruturas de Dados Básicas II** (Insti
 | **Autor** | _Sabrina Bezerra da Silva_ |
 | **Matrícula** | _20250039468_ |
 | **Linguagem** | C++ (compilado com g++ 15.2.0, Ubuntu) |
-| **Repositório** | _LINK PÚBLICO DO REPOSITÓRIO_ |
 
 ---
 
